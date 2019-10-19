@@ -7,6 +7,7 @@ class Test
 public:
     Test();
     static void testLinearGradient();
+    static void testSparseMatrix();
 };
 
 #endif // TEST_H
