@@ -24,7 +24,7 @@ void Test::testLinearGradient()
     Eigen::SparseMatrix<float> I(20,20);
     I.setIdentity();
     ATA+=0.1*I;
-    Eigen::VectorXf b(20);
+    Eigen::VectorXf b=Eigen::VectorXf::Zero(20);
     b(0,0)=10;b(1,0)=1;b(2,0)=2;b(3,0)=3;b(4,0)=4;b(5,0)=5;b(6,0)=6;b(7,0)=7;b(8,0)=8;b(9,0)=9;b(10,0)=10;b(11,0)=11;b(12,0)=12;b(12,0)=28;
     //std::cout<<b<<std::endl;
 //std::cout<<ATA<<std::endl;
@@ -43,8 +43,29 @@ void Test::testLinearGradient()
     std::cout<<status.numIterations<<std::endl;
 }
 
-void Test::testSparseMatrix()
+void Test::testIllMatrix()
 {
-
+    Eigen::SparseMatrix<float> A(2,2);
+    A.insert(0,0)=1;
+    A.insert(0,1)=0.99;
+    A.insert(1,0)=0.99;
+    A.insert(1,1)=0.98;
+    Eigen::VectorXf b=Eigen::VectorXf::Ones(2);
+    std::cout<<"A:"<<A<<std::endl;
+    std::cout<<"--------"<<std::endl;
+    std::cout<<"b:"<<b<<std::endl;
+    std::cout<<"--------"<<std::endl;
+    Eigen::SimplicialCholesky<Eigen::SparseMatrix<float>> chol(A);  // 执行A的 Cholesky分解
+    Eigen::VectorXf x = chol.solve(b);         // 使用A的Cholesky分解来求解等号右边的向量b
+    std::cout<<x<<std::endl;
+    std::cout<<"--------"<<std::endl;
+    std::cout<<LinearGradient<float,A.Options>::solve(A,b)<<std::endl;
+    std::cout<<"--------"<<std::endl;
+    PreConditionedConjugateGradient<Eigen::SparseMatrix<float>,Eigen::VectorXf,float> pgc;
+    Eigen::VectorXf x1(2);
+    PreConditionedConjugateGradient<Eigen::SparseMatrix<float>,Eigen::VectorXf,float>::Status status=pgc.solve(A,b,x1);
+    std::cout<<x1<<std::endl;
+//    std::cout<<status.info<<std::endl;
+//    std::cout<<status.numIterations<<std::endl;
 
 }
