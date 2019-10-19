@@ -37,7 +37,14 @@ void Test::testLinearGradient()
     std::cout<<"--------"<<std::endl;
     PreConditionedConjugateGradient<Eigen::SparseMatrix<float>,Eigen::VectorXf,float> pgc;
     Eigen::VectorXf x1(20);
-    PreConditionedConjugateGradient<Eigen::SparseMatrix<float>,Eigen::VectorXf,float>::Status status=pgc.solve(ATA,b,x1);
+
+    Eigen::Diagonal<Eigen::SparseMatrix<float>> d=ATA.diagonal();
+    d(0,0);
+    Eigen::SparseMatrix<float> P(20,20);
+    for(int i=0;i<20;i++){
+        P.insert(i,i)= 1/d(i);
+    }
+    PreConditionedConjugateGradient<Eigen::SparseMatrix<float>,Eigen::VectorXf,float>::Status status=pgc.solve(ATA,b,x1,&P);
     std::cout<<x1<<std::endl;
     std::cout<<status.info<<std::endl;
     std::cout<<status.numIterations<<std::endl;
