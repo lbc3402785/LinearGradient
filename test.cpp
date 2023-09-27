@@ -1,7 +1,9 @@
 #include "test.h"
 #include "lineargradient.h"
 #include "preconditionedconjugategradient.h"
+#include "LevenbergMarquardt.h"
 #include <iostream>
+#include <Eigen/Dense>
 /**
  * ————————————————
  *  版权声明：本文为CSDN博主「xuezhisdc」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
@@ -75,4 +77,64 @@ void Test::testIllMatrix()
 //    std::cout<<status.info<<std::endl;
 //    std::cout<<status.numIterations<<std::endl;
 
+}
+void calcJacobian(Eigen::VectorXd& param,Eigen::Matrix<double, Eigen::Dynamic,Eigen::Dynamic, Eigen::RowMajor> &jac)
+{
+    jac(0,0)=2*param(0)-4.0;//2x-4
+    jac(0,1)=0;
+    jac(1,0)=2*(param(0)*param(1)-3)*param(1);//2(xy-3)*y
+    jac(1,1)=2*(param(0)*param(1)-3)*param(0);//2(xy-3)*x
+}
+void calcError(Eigen::VectorXd& param,Eigen::Matrix<double, Eigen::Dynamic,Eigen::Dynamic, Eigen::RowMajor> &err)
+{
+    //f(0)=(x-2)^2
+    err(0,0)=(param(0)-2)*(param(0)-2);
+    //f(1)=(xy-3)^2
+    err(1,0)=(param(0)*param(1)-3)*(param(0)*param(1)-3);
+}
+void Test::testLM()
+{
+    int nparams=2;
+    int nerrs=2;
+    OptimizationFramework::LevenbergMarquardt<double> solver(nparams,nerrs,OptimizationFramework::LevenbergMarquardt<double>::TermCriteria());
+
+    Eigen::Matrix<double, Eigen::Dynamic,Eigen::Dynamic, Eigen::RowMajor> err, jac;
+    Eigen::VectorXd matParams;
+    matParams=solver.param;
+    err.resize(nerrs,1);
+    err.setZero();
+    jac.resize(nerrs,nparams);
+    jac.setZero();
+
+    int iter = 0;
+
+    for(;;)
+    {
+        const Eigen::VectorXd* _param;
+        Eigen::Matrix<double, Eigen::Dynamic,Eigen::Dynamic, Eigen::RowMajor>* _jac;
+        Eigen::Matrix<double, Eigen::Dynamic,Eigen::Dynamic, Eigen::RowMajor>* _err;
+
+        bool proceed = solver.update(_param, _jac, _err);
+
+        matParams=*_param;
+
+        if (!proceed || !_err)
+            break;
+
+        if (_jac)
+        {
+            calcJacobian(matParams,jac);
+            *_jac=jac;
+        }
+
+        if (_err)
+        {
+            calcError(matParams,err);
+
+            iter++;
+            *_err=err;
+        }
+    }
+    std::cout<<"matParams:"<<matParams<<std::endl;
+    std::cout<<"err:"<<err<<std::endl;
 }

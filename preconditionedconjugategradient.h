@@ -34,7 +34,7 @@ template<typename Functor, typename Vector, typename T>
 typename PreConditionedConjugateGradient<Functor,Vector,T>::Status PreConditionedConjugateGradient<Functor,Vector,T>::solve(const Functor &A, const Vector &b,Vector& x,const Functor *P)
 {
     assert(A.rows()==A.cols());
-    assert(A.cols()=b.rows());
+    assert(A.cols()==b.rows());
     if(A.cols()!=x.size()){
         x.resize(A.cols());
     }

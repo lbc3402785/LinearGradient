@@ -15,7 +15,7 @@ template<typename T, int _Options>
 Eigen::Matrix<T, Eigen::Dynamic,1, _Options> LinearGradient<T,_Options>::solve(const Eigen::SparseMatrix<T,_Options> &A, const Eigen::Matrix<T, Eigen::Dynamic,1, _Options> &b,T epsilon)
 {
     assert(A.rows()==A.cols());
-    assert(A.cols()=b.rows());
+    assert(A.cols()==b.rows());
     using namespace Eigen;
     typedef Eigen::Matrix<T, Eigen::Dynamic,1, _Options> VectorXT;
     int n=A.cols();
